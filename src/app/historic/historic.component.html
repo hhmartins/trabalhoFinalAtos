@@ -1,0 +1,250 @@
+<head>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Lato", sans-serif;
+    }
+
+    .sidebar {
+      margin: 0;
+      padding: 0;
+      width: 200px;
+      background-color: #f1f1f1;
+      position: fixed;
+      height: 100%;
+      overflow: auto;
+    }
+
+    .sidebar a {
+      display: block;
+      color: black;
+      padding: 16px;
+      text-decoration: none;
+    }
+
+    .sidebar a.active {
+      background-color: #76def8;
+      color: white;
+    }
+
+    .sidebar a:hover:not(.active) {
+      background-color: #555;
+      color: white;
+    }
+
+    div.content {
+      margin-left: 200px;
+      padding: 1px 16px;
+      height: 911px;
+    }
+
+    @media screen and (max-width: 700px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+
+      .sidebar a {
+        float: left;
+      }
+
+      div.content {
+        margin-left: 0;
+      }
+    }
+
+    @media screen and (max-width: 400px) {
+      .sidebar a {
+        text-align: center;
+        float: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="sidebar">
+    <a routerLink="/users"><b>Usuários</b></a>
+    <a class="active" routerLink="/historic"><b>Historico</b></a>
+    <a href="#contact"><b>Monitoramento</b></a>
+  </div>
+
+  <div class="content">
+    <h2>Histórico de recargas</h2>
+    <hr>
+
+    <div class="container" id="main-container">
+      <div class="row">
+        <div class="col-lg-9">
+          <div class="main-box clearfix">
+            <div class="table-responsive">
+              <table class="table user-list">
+                <thead>
+                  <tr>
+                    <th><span>Nome</span></th>
+                    <th><span>Tempo</span></th>
+                    <th class="text-center"><span>Energia Consumida</span></th>
+                    <th><span>Custo</span></th>
+                    <th>&nbsp;</th>
+                  </tr>
+                </thead>
+                <tbody *ngFor="let historic of historics">
+                  <tr>
+                    <td>
+                      <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="">
+                      <a href="#" class="user-link">{{historic?.name}}</a>
+                      <span class="user-subhead">Admin</span>
+                    </td>
+                    <td>
+                      {{historic?.time}} min
+                    </td>
+                    <td>
+                      {{historic?.energy}} kWh
+                    </td>
+                    <td>
+                      R$ {{historic?.cost}},00
+                    </td>
+                    <td style="width: 20%;">
+                      <a (click)="onOpenModal(historic, 'edit')" class="btn btn-primary tooltips" data-placement="top"
+                        data-original-title="Edit"><i class="fa fa-pencil"></i> </a>
+                      <a (click)="onOpenModal(historic, 'delete')" class="btn btn-danger tooltips"
+                        data-placement="top" data-original-title="Delete"><i class="fa fa-trash"></i></a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="btn pull-right">
+            <a type="button" class="btn btn-success" data-toggle="modal" data-target="#addHistoricModal">Adicionar
+              Recarga</a>
+          </div>
+          <div class="btn pull-right">
+            <a (click)="onAddHistoricRandom(null)"  type="button" class="btn btn-primary">Adicionar
+              Random</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="container-fluid">
+    <p style="text-align: center">Projeto Final Fabricio</p>
+  </footer>
+
+  <!-- Delete Modal -->
+  <div class="modal fade" id="deleteHistoricModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModelLabel">Deletar do Historico</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja apagar a recarga do usuário {{deleteHistoric?.name}}?</p>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Não</button>
+            <button (click)="onDeleteHistoric(deleteHistoric?.id)" class="btn btn-danger"
+              data-dismiss="modal">Sim</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Historic Modal -->
+  <div class="modal fade" id="addHistoricModal" tabindex="-1" role="dialog" aria-labelledby="addHistoricModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addHistoricModalLabel">Adicionar uma nova recarga ao histórico</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form #addForm="ngForm" (ngSubmit)="onAddHistoric(addForm)">
+            <div class="form-group">
+              <label for="name">Nome</label>
+              <input type="text" ngModel name="name" class="form-control" id="name" placeholder="Nome" required>
+            </div>
+            <div class="form-group">
+              <label for="time">Tempo</label>
+              <input type="number" ngModel name="time" class="form-control" id="time" placeholder="Tempo" required>
+            </div>
+            <div class="form-group">
+              <label for="energy">Energia</label>
+              <input type="number" ngModel name="energy" class="form-control" id="energy" placeholder="Energia" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Custo</label>
+              <input type="number" ngModel name="cost" class="form-control" id="cost" placeholder="Custo" required>
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="add-historic-form" class="btn btn-secondary"
+                data-dismiss="modal">Fechar</button>
+              <button [disabled]="addForm.invalid" type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="updateHistoricModal" tabindex="-1" role="dialog" aria-labelledby="historicEditModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateHistoricModalLabel">Editar historico do usuário {{editHistoric?.name}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form #editForm="ngForm">
+            <div class="form-group">
+              <label for="name">Nome</label>
+              <input type="text" ngModel="{{editHistoric?.name}}" name="name" class="form-control" id="name"
+                aria-describedby="emailHelp" placeholder="Nome">
+            </div>
+            <input type="hidden" ngModel="{{editHistoric?.id}}" name="id" class="form-control" id="id" placeholder="ID">
+            <div class="form-group">
+              <label for="time">Tempo</label>
+              <input type="text" ngModel="{{editHistoric?.time}}" name="time" class="form-control" id="time"
+                placeholder="Tempo">
+            </div>
+            <div class="form-group">
+              <label for="energy">Energia</label>
+              <input type="text" ngModel="{{editHistoric?.energy}}" name="energy" class="form-control" id="energy"
+                placeholder="Energia">
+            </div>
+            <div class="form-group">
+              <label for="cost">Custo</label>
+              <input type="text" ngModel="{{editHistoric?.cost}}" name="cost" class="form-control" id="cost" name="cost"
+                placeholder="Custo">
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="" data-dismiss="modal" class="btn btn-secondary">Close</button>
+              <button (click)="onUpdateHistoric(editForm.value)" data-dismiss="modal" class="btn btn-primary">Save
+                changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
